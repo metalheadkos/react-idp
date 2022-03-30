@@ -5,6 +5,7 @@ module.exports = {
   },
   extends: [
     'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
     'airbnb',
   ],
   parserOptions: {
@@ -33,5 +34,8 @@ module.exports = {
         minProperties: 3,
       },
     }],
+    'import/prefer-default-export': 1,
+    'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
+    'react-hooks/exhaustive-deps': 'warn', // Checks effect dependencies
   },
 }
