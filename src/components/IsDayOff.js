@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import moment from 'moment'
 import useDayOff from '../hooks/useDayOff'
 
 function IsDayOff() {
@@ -11,6 +12,8 @@ function IsDayOff() {
     const checkDayOff = async () => {
       if (typeof date !== 'undefined') {
         setIsDayOff(await dayOffHook(new Date(date)))
+      } else {
+        setIsDayOff(undefined)
       }
     }
 
@@ -18,7 +21,11 @@ function IsDayOff() {
   }, [date, dayOffHook])
 
   const dateChanged = (e) => {
-    setDate(e.target.value)
+    if (e.target.value !== '' && moment(e.target.value).isValid()) {
+      setDate(e.target.value)
+    } else {
+      setDate(undefined)
+    }
   }
 
   return (
