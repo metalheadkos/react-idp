@@ -1,10 +1,10 @@
 import React from 'react'
 import './App.css'
-import IsDayOff from './components/IsDayOff'
+import Weather from './components/Weather'
 
 function App() {
   return (
-    <IsDayOff />
+    <Weather />
   )
 }
 

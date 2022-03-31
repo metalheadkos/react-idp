@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import moment from 'moment'
+import { Box } from '@mui/material'
 import useDayOff from '../hooks/useDayOff'
+import Weather from './Weather'
 
+/**
+ * @deprecated
+ * @returns {JSX.Element}
+ * @constructor
+ */
 function IsDayOff() {
   const [date, setDate] = useState()
   const [isDayOff, setIsDayOff] = useState()
@@ -29,17 +36,19 @@ function IsDayOff() {
   }
 
   return (
-    <div className="flex gap-12 align-items-center">
-      <input type="date" onChange={dateChanged} />
-      <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span>
-    </div>
+    <Box display="flex" flexDirection="column" gap="12px">
+      <Box alignItems="center" display="flex" gap="12px !important">
+        <input type="date" onChange={dateChanged} />
+        <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span>
+      </Box>
+      <Box>
+        <Weather />
+      </Box>
+    </Box>
   )
 }
 
-IsDayOff.propTypes = {
-}
-
-IsDayOff.defaultProps = {
-}
+IsDayOff.propTypes = {}
+IsDayOff.defaultProps = {}
 
 export default IsDayOff

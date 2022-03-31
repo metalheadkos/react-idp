@@ -9,9 +9,7 @@ module.exports = {
     'airbnb',
   ],
   parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
+    ecmaFeatures: { jsx: true },
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
@@ -19,15 +17,14 @@ module.exports = {
     'react',
   ],
   rules: {
-    'react/jsx-filename-extension': [1, {
-      extensions: ['.js', '.jsx'],
-    }],
+    'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
     semi: [1, 'never'],
     'object-curly-newline': ['error', {
-      ObjectExpression: 'always',
-      ObjectPattern: {
+      ObjectExpression: {
         multiline: true,
+        minProperties: 5,
       },
+      ObjectPattern: { multiline: true },
       ImportDeclaration: 'never',
       ExportDeclaration: {
         multiline: true,
