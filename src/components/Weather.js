@@ -22,11 +22,12 @@ function Weather() {
   const [weather, setWeather] = useState([])
   // eslint-disable-next-line no-unused-vars
   const [location, setLocation] = useState({})
-  const [error, setError] = useState({
+  const initialErrorState = {
     has: false,
     code: 0,
     message: '',
-  })
+  }
+  const [error, setError] = useState(initialErrorState)
 
   const getLocation = useGeolocation
   const getForecast = useWeatherForecast
@@ -82,6 +83,10 @@ function Weather() {
     }
   }
 
+  const resetError = () => {
+    setError(initialErrorState)
+  }
+
   return (
     <Box display="flex" flexDirection="column" gap="12px">
       <Box alignItems="center" display="flex" gap="12px !important">
@@ -89,7 +94,7 @@ function Weather() {
         {/* <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span> */}
       </Box>
       <Box>
-        {weather.length > 0
+        {!error.has && weather.length > 0
           && (
             <Box display="flex" flexWrap="wrap" gap="12px">
               {weather.map((wItem) => (
@@ -104,7 +109,12 @@ function Weather() {
               ))}
             </Box>
           )}
-        {error.has && <Alert onClose={() => { }} severity="error">{`${error.code}: ${error.message}`}</Alert>}
+        {/* eslint-disable-next-line no-param-reassign */}
+        {error.has && (
+        <Alert onClose={resetError} severity="error">
+          {`Невозможно определить геолокацию: ${error.message}`}
+        </Alert>
+        )}
       </Box>
     </Box>
   )
