@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, Box, Card, Typography } from '@mui/material'
 import moment from 'moment'
+import { useForm } from 'react-hook-form'
 import useGeolocation from '../hooks/useGeolocation'
 import useWeatherForecast from '../hooks/useWeatherForecast'
 import useDayOff from '../hooks/useDayOff'
 import { WeatherDataHandler } from '../services/WeatherDataHandler'
+import Input from './Input'
 
 const cardStyles = {
   padding: '.5rem !important',
@@ -18,6 +20,7 @@ const cardStyles = {
 }
 
 function Weather() {
+  const { register, handleSubmit } = useForm()
   // eslint-disable-next-line no-unused-vars
   const [weather, setWeather] = useState([])
   // eslint-disable-next-line no-unused-vars
@@ -75,48 +78,71 @@ function Weather() {
     checkDayOff()
   }, [date, dayOffHook, getForecast, location.latitude, location.longitude])
 
-  const dateChanged = (e) => {
-    if (e.target.value !== '' && moment(e.target.value).isValid()) {
-      setDate(e.target.value)
-    } else {
-      setDate(undefined)
-    }
-  }
-
   const resetError = () => {
     setError(initialErrorState)
   }
 
+  const onSubmit = (submitData) => {
+    if (submitData.date !== '' && moment(submitData.date).isValid()) {
+      setDate(submitData.date)
+    }
+  }
+
+  const checkDateForForecast = (selectedDate) => {
+    let hasForecast = false
+    const sdMoment = moment(selectedDate)
+
+    weather.forEach((wItem) => {
+      const wItemMoment = wItem.date
+      if (sdMoment.diff(wItemMoment, 'd') === 0) {
+        hasForecast = true
+      }
+    })
+
+    return hasForecast
+  }
+
+  const onError = (submitError) => console.debug(submitError)
+
   return (
-    <Box display="flex" flexDirection="column" gap="12px">
-      <Box alignItems="center" display="flex" gap="12px !important">
-        <input type="date" onChange={dateChanged} />
-        {/* <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span> */}
-      </Box>
-      <Box>
-        {!error.has && weather.length > 0
-          && (
-            <Box display="flex" flexWrap="wrap" gap="12px">
-              {weather.map((wItem) => (
-                <Card sx={cardStyles} key={wItem.uuid}>
-                  <Typography variant="body1">
-                    {wItem.date}
-                  </Typography>
-                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    {wItem.humanReadableWeather}
-                  </Typography>
-                </Card>
-              ))}
-            </Box>
+    <form onSubmit={handleSubmit(onSubmit, onError)}>
+      <Box display="flex" flexDirection="column" gap="12px">
+        <Box alignItems="center" display="flex" gap="12px !important">
+          <Input register={register} name="date" required="required" />
+          <input type="submit" />
+          {/* for days without forecast */}
+          {!checkDateForForecast(date) && <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span>}
+        </Box>
+        <Box>
+          {!error.has && weather.length > 0
+            && (
+              <Box display="flex" flexWrap="wrap" gap="12px">
+                {weather.map((wItem) => (
+                  <Card sx={cardStyles} key={wItem.uuid}>
+                    <Typography variant="body1">
+                      {wItem.date}
+                    </Typography>
+                    <Typography sx={{ mb: 0.5 }} color="text.secondary">
+                      {wItem.humanReadableWeather}
+                    </Typography>
+                    {date === wItem.date && (
+                      <Typography sx={{ mb: 0.5 }} variant="body2">
+                        {isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}
+                      </Typography>
+                    )}
+                  </Card>
+                ))}
+              </Box>
+            )}
+          {/* eslint-disable-next-line no-param-reassign */}
+          {error.has && (
+            <Alert onClose={resetError} severity="error">
+              {`Невозможно определить геолокацию: ${error.message}`}
+            </Alert>
           )}
-        {/* eslint-disable-next-line no-param-reassign */}
-        {error.has && (
-        <Alert onClose={resetError} severity="error">
-          {`Невозможно определить геолокацию: ${error.message}`}
-        </Alert>
-        )}
+        </Box>
       </Box>
-    </Box>
+    </form>
   )
 }
 
