@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from 'react'
-import { Alert, Box } from '@mui/material'
+import { Alert, Box, Card, Typography } from '@mui/material'
 import moment from 'moment'
 import useGeolocation from '../hooks/useGeolocation'
 import useWeatherForecast from '../hooks/useWeatherForecast'
 import useDayOff from '../hooks/useDayOff'
+import { WeatherDataHandler } from '../services/WeatherDataHandler'
+
+const cardStyles = {
+  padding: '.5rem !important',
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  minWidth: 160,
+  maxWidth: 160,
+}
 
 function Weather() {
   // eslint-disable-next-line no-unused-vars
-  const [weather, setWeather] = useState('')
+  const [weather, setWeather] = useState([])
   // eslint-disable-next-line no-unused-vars
   const [location, setLocation] = useState({})
   const [error, setError] = useState({
@@ -15,7 +27,7 @@ function Weather() {
     code: 0,
     message: '',
   })
-  // eslint-disable-next-line no-unused-vars
+
   const getLocation = useGeolocation
   const getForecast = useWeatherForecast
 
@@ -37,6 +49,7 @@ function Weather() {
   }, [getLocation])
 
   const [date, setDate] = useState()
+  // eslint-disable-next-line no-unused-vars
   const [isDayOff, setIsDayOff] = useState()
 
   const dayOffHook = useDayOff
@@ -52,9 +65,7 @@ function Weather() {
           timezone,
           daily: 'weathercode',
         })
-        setWeather(forecast.daily)
-        console.log(forecast)
-        // todo: add weather displaying
+        setWeather(WeatherDataHandler.handle(forecast.daily))
       } else {
         setIsDayOff(undefined)
       }
@@ -75,11 +86,25 @@ function Weather() {
     <Box display="flex" flexDirection="column" gap="12px">
       <Box alignItems="center" display="flex" gap="12px !important">
         <input type="date" onChange={dateChanged} />
-        <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span>
+        {/* <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span> */}
       </Box>
       <Box>
+        {weather.length > 0
+          && (
+            <Box display="flex" flexWrap="wrap" gap="12px">
+              {weather.map((wItem) => (
+                <Card sx={cardStyles} key={wItem.uuid}>
+                  <Typography variant="body1">
+                    {wItem.date}
+                  </Typography>
+                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    {wItem.humanReadableWeather}
+                  </Typography>
+                </Card>
+              ))}
+            </Box>
+          )}
         {error.has && <Alert onClose={() => { }} severity="error">{`${error.code}: ${error.message}`}</Alert>}
-        <Box />
       </Box>
     </Box>
   )
