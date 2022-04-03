@@ -1,23 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Alert, Box, Card, Typography } from '@mui/material'
+import { Alert, Box } from '@mui/material'
 import moment from 'moment'
 import { useForm } from 'react-hook-form'
+import { v4 as uuidv4 } from 'uuid'
 import useGeolocation from '../hooks/useGeolocation'
 import useWeatherForecast from '../hooks/useWeatherForecast'
-import useDayOff from '../hooks/useDayOff'
 import { WeatherDataHandler } from '../services/WeatherDataHandler'
-import Input from './Input'
-
-const cardStyles = {
-  padding: '.5rem !important',
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  minWidth: 160,
-  maxWidth: 160,
-}
+import DateRangePicker from './DateRangePicker'
+import DayOffForecastData from './DayOffForecastData'
+import useDayOffRange from '../hooks/useDayOffRange'
 
 function Weather() {
   const { register, handleSubmit } = useForm()
@@ -52,16 +43,40 @@ function Weather() {
     defineLocation()
   }, [getLocation])
 
-  const [date, setDate] = useState()
   // eslint-disable-next-line no-unused-vars
-  const [isDayOff, setIsDayOff] = useState()
+  const [rangeDates, setRangeDates] = useState({
+    startDate: undefined,
+    endDate: undefined,
+  })
 
-  const dayOffHook = useDayOff
+  // eslint-disable-next-line no-unused-vars
+  const [dayOffForecastData, setDayOffForecastData] = useState([])
+
+  const dayOffRangeHook = useDayOffRange
+
+  const resetError = () => {
+    setError(initialErrorState)
+  }
+
+  const onSubmit = (submitData) => {
+    if (submitData.startDate !== '' && moment(submitData.startDate).isValid() && submitData.endDate !== ''
+      && moment(submitData.endDate).isValid() && moment(submitData.endDate).diff(moment(submitData.startDate), 'd') > 0
+    ) {
+      setRangeDates({
+        startDate: submitData.startDate,
+        endDate: submitData.endDate,
+      })
+    }
+  }
 
   useEffect(() => {
-    const checkDayOff = async () => {
-      if (typeof date !== 'undefined') {
-        setIsDayOff(await dayOffHook(new Date(date)))
+    const checkDayOffRange = async () => {
+      if (typeof rangeDates.endDate !== 'undefined' && typeof rangeDates.startDate !== 'undefined') {
+        const dayOffs = await dayOffRangeHook({
+          startDate: rangeDates.startDate,
+          endDate: rangeDates.endDate,
+        })
+
         const { timeZone: timezone } = Intl.DateTimeFormat().resolvedOptions()
         const forecast = await getForecast({
           latitude: Math.round((location.latitude + Number.EPSILON) * 100) / 100,
@@ -69,70 +84,43 @@ function Weather() {
           timezone,
           daily: 'weathercode',
         })
-        setWeather(WeatherDataHandler.handle(forecast.daily))
-      } else {
-        setIsDayOff(undefined)
+
+        const dailyForecast = WeatherDataHandler.handle(forecast.daily)
+        const finalDayOffForecastData = []
+        // eslint-disable-next-line no-restricted-syntax
+        for (const [dateOff, isDateDayOff] of Object.entries(dayOffs)) {
+          const dForecast = dailyForecast.find((dF) => dF.date === dateOff)
+          finalDayOffForecastData.push({
+            date: dateOff,
+            uuid: uuidv4(),
+            isDayOff: isDateDayOff,
+            forecast: {
+              exist: dForecast !== undefined,
+              data: dForecast,
+            },
+          })
+        }
+
+        setDayOffForecastData(finalDayOffForecastData)
       }
     }
 
-    checkDayOff()
-  }, [date, dayOffHook, getForecast, location.latitude, location.longitude])
-
-  const resetError = () => {
-    setError(initialErrorState)
-  }
-
-  const onSubmit = (submitData) => {
-    if (submitData.date !== '' && moment(submitData.date).isValid()) {
-      setDate(submitData.date)
-    }
-  }
-
-  const checkDateForForecast = (selectedDate) => {
-    let hasForecast = false
-    const sdMoment = moment(selectedDate)
-
-    weather.forEach((wItem) => {
-      const wItemMoment = wItem.date
-      if (sdMoment.diff(wItemMoment, 'd') === 0) {
-        hasForecast = true
-      }
-    })
-
-    return hasForecast
-  }
+    checkDayOffRange()
+  }, [dayOffRangeHook, getForecast, location.latitude, location.longitude, rangeDates])
 
   const onError = (submitError) => console.debug(submitError)
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
       <Box display="flex" flexDirection="column" gap="12px">
-        <Box alignItems="center" display="flex" gap="12px !important">
-          <Input register={register} name="date" required="required" />
+        <Box alignItems="flex-start" display="flex" gap="12px !important" flexDirection="column">
+          <DateRangePicker register={register} />
           <input type="submit" />
-          {/* for days without forecast */}
-          {!checkDateForForecast(date) && <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span>}
         </Box>
         <Box>
-          {!error.has && weather.length > 0
+          {!error.has && dayOffForecastData.length > 0
             && (
-              <Box display="flex" flexWrap="wrap" gap="12px">
-                {weather.map((wItem) => (
-                  <Card sx={cardStyles} key={wItem.uuid}>
-                    <Typography variant="body1">
-                      {wItem.date}
-                    </Typography>
-                    <Typography sx={{ mb: 0.5 }} color="text.secondary">
-                      {wItem.humanReadableWeather}
-                    </Typography>
-                    {date === wItem.date && (
-                      <Typography sx={{ mb: 0.5 }} variant="body2">
-                        {isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}
-                      </Typography>
-                    )}
-                  </Card>
-                ))}
-              </Box>
+              <DayOffForecastData forecastData={dayOffForecastData} />
             )}
           {/* eslint-disable-next-line no-param-reassign */}
           {error.has && (
