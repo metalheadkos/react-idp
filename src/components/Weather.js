@@ -11,9 +11,7 @@ import DayOffForecastData from './DayOffForecastData'
 import useDayOffRange from '../hooks/useDayOffRange'
 
 function Weather() {
-  const { register, handleSubmit } = useForm()
-  // eslint-disable-next-line no-unused-vars
-  const [weather, setWeather] = useState([])
+  const { register, handleSubmit, getValues } = useForm()
   // eslint-disable-next-line no-unused-vars
   const [location, setLocation] = useState({})
   const initialErrorState = {
@@ -59,6 +57,7 @@ function Weather() {
   }
 
   const onSubmit = (submitData) => {
+    resetError()
     if (submitData.startDate !== '' && moment(submitData.startDate).isValid() && submitData.endDate !== ''
       && moment(submitData.endDate).isValid() && moment(submitData.endDate).diff(moment(submitData.startDate), 'd') > 0
     ) {
@@ -108,13 +107,19 @@ function Weather() {
     checkDayOffRange()
   }, [dayOffRangeHook, getForecast, location.latitude, location.longitude, rangeDates])
 
-  const onError = (submitError) => console.debug(submitError)
+  const onError = (submitError) => {
+    setError({
+      code: 1,
+      has: true,
+      message: submitError.startDate.message,
+    })
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
       <Box display="flex" flexDirection="column" gap="12px">
         <Box alignItems="flex-start" display="flex" gap="12px !important" flexDirection="column">
-          <DateRangePicker register={register} />
+          <DateRangePicker register={register} getValues={getValues} />
           <input type="submit" />
         </Box>
         <Box>
@@ -125,7 +130,7 @@ function Weather() {
           {/* eslint-disable-next-line no-param-reassign */}
           {error.has && (
             <Alert onClose={resetError} severity="error">
-              {`Невозможно определить геолокацию: ${error.message}`}
+              {`Application Error: ${error.message}`}
             </Alert>
           )}
         </Box>

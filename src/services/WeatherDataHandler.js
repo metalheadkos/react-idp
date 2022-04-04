@@ -5,7 +5,8 @@ export class WeatherDataHandler {
   /**
    * Reformat data from API
    * @param {array<string>} time
-   * @param {array<number>} weatercode
+   * @param {array<number>} weatherCode
+   * @returns {*[]}
    */
   static handle({ time, weathercode: weatherCode }) {
     const handledData = []
