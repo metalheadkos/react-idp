@@ -1,37 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import moment from 'moment'
 import useDayOff from '../hooks/useDayOff'
 
 function IsDayOff() {
-  const [date, setDate] = useState()
-  const [isDayOff, setIsDayOff] = useState()
-
-  const dayOffHook = useDayOff
-
-  useEffect(() => {
-    const checkDayOff = async () => {
-      if (typeof date !== 'undefined') {
-        setIsDayOff(await dayOffHook(new Date(date)))
-      } else {
-        setIsDayOff(undefined)
-      }
-    }
-
-    checkDayOff()
-  }, [date, dayOffHook])
+  // set default today
+  const [date, setDate] = useState(moment().format('YYYY-MM-DD'))
+  const isDayOff = useDayOff(new Date(date))
 
   const dateChanged = (e) => {
     if (e.target.value !== '' && moment(e.target.value).isValid()) {
       setDate(e.target.value)
-    } else {
-      setDate(undefined)
     }
   }
 
   return (
     <div className="flex gap-12 align-items-center">
-      <input type="date" onChange={dateChanged} />
-      <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span>
+      <input type="date" onChange={dateChanged} value={date} />
+      <span>{isDayOff ? 'Day off' : 'Working day'}</span>
     </div>
   )
 }
