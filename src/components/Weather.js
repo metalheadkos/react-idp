@@ -3,8 +3,8 @@ import { Alert, Box, Card, Typography } from '@mui/material'
 import moment from 'moment'
 import useGeolocation from '../hooks/useGeolocation'
 import useWeatherForecast from '../hooks/useWeatherForecast'
-import useDayOff from '../hooks/useDayOff'
-import { WeatherDataHandler } from '../services/WeatherDataHandler'
+// import useDayOff from '../hooks/useDayOff'
+// import { WeatherDataHandler } from '../services/WeatherDataHandler'
 
 const cardStyles = {
   padding: '.5rem !important',
@@ -20,8 +20,7 @@ const cardStyles = {
 function Weather() {
   // eslint-disable-next-line no-unused-vars
   const [weather, setWeather] = useState([])
-  // eslint-disable-next-line no-unused-vars
-  const [location, setLocation] = useState({})
+
   const initialErrorState = {
     has: false,
     code: 0,
@@ -29,51 +28,40 @@ function Weather() {
   }
   const [error, setError] = useState(initialErrorState)
 
-  const getLocation = useGeolocation
+  const { location } = useGeolocation()
+  if (Object.hasOwnProperty.call(location, 'message')) {
+    setError({
+      has: true,
+      code: location.code,
+      message: location.message,
+    })
+  }
+  console.log(location)
+
   const getForecast = useWeatherForecast
-
-  useEffect(() => {
-    const defineLocation = async () => {
-      try {
-        const geoLocation = await getLocation()
-        setLocation(geoLocation)
-      } catch (e) {
-        setError({
-          has: true,
-          code: e.code,
-          message: e.message,
-        })
-      }
-    }
-
-    defineLocation()
-  }, [getLocation])
-
   const [date, setDate] = useState()
   // eslint-disable-next-line no-unused-vars
-  const [isDayOff, setIsDayOff] = useState()
-
-  const dayOffHook = useDayOff
+  // const isDayOff = useDayOff(new Date(date))
 
   useEffect(() => {
-    const checkDayOff = async () => {
-      if (typeof date !== 'undefined') {
-        setIsDayOff(await dayOffHook(new Date(date)))
-        const { timeZone: timezone } = Intl.DateTimeFormat().resolvedOptions()
-        const forecast = await getForecast({
-          latitude: Math.round((location.latitude + Number.EPSILON) * 100) / 100,
-          longitude: Math.round((location.longitude + Number.EPSILON) * 100) / 100,
-          timezone,
-          daily: 'weathercode',
-        })
-        setWeather(WeatherDataHandler.handle(forecast.daily))
-      } else {
-        setIsDayOff(undefined)
-      }
-    }
-
-    checkDayOff()
-  }, [date, dayOffHook, getForecast, location.latitude, location.longitude])
+    // const checkDayOff = async () => {
+    //   if (typeof date !== 'undefined') {
+    //     setIsDayOff(await dayOffHook(new Date(date)))
+    //     const { timeZone: timezone } = Intl.DateTimeFormat().resolvedOptions()
+    //     const forecast = await getForecast({
+    //       latitude: Math.round((location.latitude + Number.EPSILON) * 100) / 100,
+    //       longitude: Math.round((location.longitude + Number.EPSILON) * 100) / 100,
+    //       timezone,
+    //       daily: 'weathercode',
+    //     })
+    //     setWeather(WeatherDataHandler.handle(forecast.daily))
+    //   } else {
+    //     setIsDayOff(undefined)
+    //   }
+    // }
+    //
+    // checkDayOff()
+  }, [date, getForecast, location.latitude, location.longitude])
 
   const dateChanged = (e) => {
     if (e.target.value !== '' && moment(e.target.value).isValid()) {
