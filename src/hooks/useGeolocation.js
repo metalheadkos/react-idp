@@ -1,14 +1,16 @@
-export default function useGeolocation() {
-  return new Promise((resolve, reject) => {
-    const success = (pos) => {
-      const crd = pos.coords
+import { useEffect, useState } from 'react'
 
-      resolve(crd)
+export default function useGeolocation() {
+  const [location, setLocation] = useState({})
+
+  useEffect(() => {
+    const success = (pos) => {
+      setLocation(pos.coords)
     }
 
     // eslint-disable-next-line no-shadow
     const error = (error) => {
-      reject(error)
+      setLocation(error)
     }
 
     const options = {
@@ -18,6 +20,7 @@ export default function useGeolocation() {
     }
 
     navigator.geolocation.getCurrentPosition(success, error, options)
-  }).then((value) => Promise.resolve(value))
-    .catch((e) => Promise.reject(e))
+  }, [])
+
+  return { location }
 }
