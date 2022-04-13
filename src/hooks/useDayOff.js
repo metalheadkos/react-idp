@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { FetchHttpClient } from '../services/FetchHttpClient'
 
 /**
- * @param {Date} date
+ * @param {Date | string} date
  */
 export default function useDayOff(date) {
   const [isDayOff, setIsDayOff] = useState(undefined)
@@ -16,12 +16,13 @@ export default function useDayOff(date) {
         return FetchHttpClient.get(url)
       }
 
-      throw new Error('Date is empty')
+      return Promise.reject()
     }
 
     checkDay()
       .then((response) => response.text()
         .then((text) => setIsDayOff(parseInt(text, 10) !== 0)))
+      .catch(() => setIsDayOff(undefined))
   }, [date])
 
   return isDayOff
