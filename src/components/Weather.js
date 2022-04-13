@@ -20,13 +20,6 @@ const cardStyles = {
 
 function Weather() {
   const { register, handleSubmit } = useForm()
-
-  const initialErrorState = {
-    has: false,
-    code: 0,
-    message: '',
-  }
-  const [error, setError] = useState(initialErrorState)
   const [date, setDate] = useState()
   const { location } = useGeolocation()
   // eslint-disable-next-line no-unused-vars
@@ -34,10 +27,6 @@ function Weather() {
 
   // eslint-disable-next-line no-unused-vars
   const isDayOff = useDayOff(date)
-
-  const resetError = () => {
-    setError(initialErrorState)
-  }
 
   const onSubmit = (submitData) => {
     if (submitData.date !== '' && moment(submitData.date).isValid()) {
@@ -72,7 +61,7 @@ function Weather() {
           {!checkDateForForecast(date) && <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span>}
         </Box>
         <Box>
-          {!error.has && Array.isArray(weather) && weather.length > 0
+          {result !== undefined && result && Array.isArray(weather) && weather.length > 0
             && (
               <Box display="flex" flexWrap="wrap" gap="12px">
                 {weather.map((wItem) => (
@@ -93,9 +82,9 @@ function Weather() {
               </Box>
             )}
           {/* eslint-disable-next-line no-param-reassign */}
-          {error.has && (
-            <Alert onClose={resetError} severity="error">
-              {`Невозможно определить геолокацию: ${error.message}`}
+          {result !== undefined && !result && Object.hasOwnProperty.call(reason, 'description') && (
+            <Alert severity="error">
+              {`Невозможно определить геолокацию: ${reason.description.message}`}
             </Alert>
           )}
         </Box>
