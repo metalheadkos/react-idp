@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Alert, Box, Card, Typography } from '@mui/material'
 import moment from 'moment'
-import useGeolocation from '../hooks/useGeolocation'
 import useWeatherForecast from '../hooks/useWeatherForecast'
-// import useDayOff from '../hooks/useDayOff'
-// import { WeatherDataHandler } from '../services/WeatherDataHandler'
+import useGeolocation from '../hooks/useGeolocation'
 
 const cardStyles = {
   padding: '.5rem !important',
@@ -18,50 +16,9 @@ const cardStyles = {
 }
 
 function Weather() {
-  // eslint-disable-next-line no-unused-vars
-  const [weather, setWeather] = useState([])
-
-  const initialErrorState = {
-    has: false,
-    code: 0,
-    message: '',
-  }
-  const [error, setError] = useState(initialErrorState)
-
-  const { location } = useGeolocation()
-  if (Object.hasOwnProperty.call(location, 'message')) {
-    setError({
-      has: true,
-      code: location.code,
-      message: location.message,
-    })
-  }
-  console.log(location)
-
-  const getForecast = useWeatherForecast
   const [date, setDate] = useState()
-  // eslint-disable-next-line no-unused-vars
-  // const isDayOff = useDayOff(new Date(date))
-
-  useEffect(() => {
-    // const checkDayOff = async () => {
-    //   if (typeof date !== 'undefined') {
-    //     setIsDayOff(await dayOffHook(new Date(date)))
-    //     const { timeZone: timezone } = Intl.DateTimeFormat().resolvedOptions()
-    //     const forecast = await getForecast({
-    //       latitude: Math.round((location.latitude + Number.EPSILON) * 100) / 100,
-    //       longitude: Math.round((location.longitude + Number.EPSILON) * 100) / 100,
-    //       timezone,
-    //       daily: 'weathercode',
-    //     })
-    //     setWeather(WeatherDataHandler.handle(forecast.daily))
-    //   } else {
-    //     setIsDayOff(undefined)
-    //   }
-    // }
-    //
-    // checkDayOff()
-  }, [date, getForecast, location.latitude, location.longitude])
+  const { location } = useGeolocation()
+  const { forecast: weather, result, reason } = useWeatherForecast(location, date)
 
   const dateChanged = (e) => {
     if (e.target.value !== '' && moment(e.target.value).isValid()) {
@@ -71,10 +28,6 @@ function Weather() {
     }
   }
 
-  const resetError = () => {
-    setError(initialErrorState)
-  }
-
   return (
     <Box display="flex" flexDirection="column" gap="12px">
       <Box alignItems="center" display="flex" gap="12px !important">
@@ -82,7 +35,7 @@ function Weather() {
         {/* <span>{isDayOff !== undefined && (isDayOff ? 'Day off' : 'Working day')}</span> */}
       </Box>
       <Box>
-        {!error.has && weather.length > 0
+        { date !== undefined && weather !== undefined && weather.length > 0
           && (
             <Box display="flex" flexWrap="wrap" gap="12px">
               {weather.map((wItem) => (
@@ -98,9 +51,9 @@ function Weather() {
             </Box>
           )}
         {/* eslint-disable-next-line no-param-reassign */}
-        {error.has && (
-        <Alert onClose={resetError} severity="error">
-          {`Невозможно определить геолокацию: ${error.message}`}
+        {result !== undefined && !result && Object.hasOwnProperty.call(reason, 'description') && (
+        <Alert severity="error">
+          {`Невозможно определить геолокацию: ${reason.description.message}`}
         </Alert>
         )}
       </Box>
