@@ -10,8 +10,6 @@ import { Paper,
 import PropTypes from 'prop-types'
 
 function DayOffForecastData({ forecastData }) {
-  // do something
-
   return (
     <TableContainer sx={{ width: 'fit-content' }} component={Paper}>
       <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
