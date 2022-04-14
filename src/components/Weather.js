@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { Alert, Box } from '@mui/material'
 import moment from 'moment'
 import { useForm } from 'react-hook-form'
+import { fromLonLat } from 'ol/proj'
 import useGeolocation from '../hooks/useGeolocation'
 import DateRangePicker from './DateRangePicker'
 import DayOffForecastData from './DayOffForecastData'
 import useDayOffAndWeatherCombination from '../hooks/useDayOffAndWeatherCombination'
+import AppMap from './AppMap'
 
 function Weather() {
   const { register, handleSubmit, getValues } = useForm()
@@ -48,27 +50,38 @@ function Weather() {
     })
   }
 
+  const handler = (points) => {
+    console.log(points)
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit, onError)}>
-      <Box display="flex" flexDirection="column" gap="12px">
-        <Box alignItems="flex-start" display="flex" gap="12px !important" flexDirection="column">
-          <DateRangePicker register={register} getValues={getValues} />
-          <input type="submit" />
-        </Box>
-        <Box>
-          {!error.has && dayOffForecastData.length > 0
-            && (
-              <DayOffForecastData forecastData={dayOffForecastData} />
+    <>
+      <form onSubmit={handleSubmit(onSubmit, onError)}>
+        <Box display="flex" flexDirection="column" gap="12px">
+          <Box alignItems="flex-start" display="flex" gap="12px !important" flexDirection="column">
+            <DateRangePicker register={register} getValues={getValues} />
+            <input type="submit" />
+          </Box>
+          <Box>
+            {!error.has && dayOffForecastData.length > 0
+              && (
+                <DayOffForecastData forecastData={dayOffForecastData} />
+              )}
+            {/* eslint-disable-next-line no-param-reassign */}
+            {error.has && (
+              <Alert onClose={resetError} severity="error">
+                {`Application Error: ${error.message}`}
+              </Alert>
             )}
-          {/* eslint-disable-next-line no-param-reassign */}
-          {error.has && (
-            <Alert onClose={resetError} severity="error">
-              {`Application Error: ${error.message}`}
-            </Alert>
-          )}
+          </Box>
         </Box>
-      </Box>
-    </form>
+      </form>
+      <AppMap
+        zoom={9}
+        center={fromLonLat([location.longitude, location.latitude])}
+        handler={handler}
+      />
+    </>
   )
 }
 
