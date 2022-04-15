@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { transform } from 'ol/proj'
 
 class Helpers {
   static isDefined = (value) => typeof value !== 'undefined'
@@ -20,6 +21,16 @@ class Helpers {
     }
 
     return dates
+  }
+
+  /**
+   * @param {Array<Feature>} features
+   */
+  static extractCoordinates(features) {
+    const coordinates = []
+    features.forEach((f) => coordinates.push(transform(f.getGeometry().getCoordinates(), 'EPSG:3857', 'EPSG:4326')))
+
+    return coordinates
   }
 }
 

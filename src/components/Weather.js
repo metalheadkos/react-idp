@@ -9,6 +9,8 @@ import DayOffForecastData from './DayOffForecastData'
 import useDayOffAndWeatherCombination from '../hooks/useDayOffAndWeatherCombination'
 import AppMap from './AppMap'
 
+const MAX_MARKERS_QTY = 5
+
 function Weather() {
   const { register, handleSubmit, getValues } = useForm()
   // eslint-disable-next-line no-unused-vars
@@ -80,6 +82,7 @@ function Weather() {
         zoom={9}
         center={fromLonLat([location.longitude, location.latitude])}
         handler={handler}
+        limit={MAX_MARKERS_QTY}
       />
     </>
   )
