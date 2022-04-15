@@ -1,20 +1,29 @@
 import moment from 'moment'
+import { useEffect, useState } from 'react'
 import { FetchHttpClient } from '../services/FetchHttpClient'
 
 /**
- * @param {Date} date
+ * @param {Date | string} date
  */
 export default function useDayOff(date) {
-  const checkDay = () => {
-    if (typeof date !== 'undefined') {
-      const dateFormatted = moment(date).format('YYYYMMDD')
-      const url = `https://isdayoff.ru/${dateFormatted}`
-      return FetchHttpClient.get(url)
+  const [isDayOff, setIsDayOff] = useState(undefined)
+
+  useEffect(() => {
+    const checkDay = () => {
+      if (typeof date !== 'undefined' && moment(date).isValid()) {
+        const dateFormatted = moment(date).format('YYYYMMDD')
+        const url = `https://isdayoff.ru/${dateFormatted}`
+        return FetchHttpClient.get(url)
+      }
+
+      return Promise.reject()
     }
 
-    throw new Error('Date is empty')
-  }
+    checkDay()
+      .then((response) => response.text()
+        .then((text) => setIsDayOff(parseInt(text, 10) !== 0)))
+      .catch(() => setIsDayOff(undefined))
+  }, [date])
 
-  return checkDay().then((response) => response.text()
-    .then((text) => Promise.resolve(parseInt(text, 10) !== 0)))
+  return isDayOff
 }

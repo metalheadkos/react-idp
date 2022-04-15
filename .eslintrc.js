@@ -31,7 +31,7 @@ module.exports = {
         minProperties: 3,
       },
     }],
-    'import/prefer-default-export': 1,
+    'import/prefer-default-export': 0,
     'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
     'react-hooks/exhaustive-deps': 'warn', // Checks effect dependencies
     'react/jsx-props-no-spreading': 0,
