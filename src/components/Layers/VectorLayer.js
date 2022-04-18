@@ -38,7 +38,7 @@ export default function VectorLayer({ source, map, handler, limit }) {
       event.preventDefault()
       const coords = transform(event.coordinate, 'EPSG:3857', 'EPSG:4326')
 
-      if (markers.getSource().getFeatures().length < limit) {
+      if (Helpers.isDefined(markers) && markers.getSource().getFeatures().length < limit) {
         const marker = new Feature(new Point(fromLonLat([coords[0], coords[1]])))
         markers.getSource().addFeature(marker)
         handler(Helpers.extractCoordinates(markers.getSource().getFeatures()))

@@ -7,17 +7,21 @@ import useGeolocation from '../hooks/useGeolocation'
 import DateRangePicker from './DateRangePicker'
 import DayOffForecastData from './DayOffForecastData'
 import useDayOffAndWeatherCombination from '../hooks/useDayOffAndWeatherCombination'
-import AppMap from './AppMap'
-
-const MAX_MARKERS_QTY = 5
+import AppMapControl from './AppMapControl'
 
 function Weather() {
-  const { register, handleSubmit, getValues } = useForm()
+  // eslint-disable-next-line no-unused-vars
+  const { register, handleSubmit, getValues, watch, control, setValue } = useForm()
   // eslint-disable-next-line no-unused-vars
   const [rangeDates, setRangeDates] = useState({
     startDate: undefined,
     endDate: undefined,
   })
+
+  const handler = (mPoints) => {
+    console.log(mPoints)
+  }
+
   const { location } = useGeolocation()
   const dayOffForecastData = useDayOffAndWeatherCombination(rangeDates, location)
 
@@ -33,6 +37,7 @@ function Weather() {
   }
 
   const onSubmit = (submitData) => {
+    console.log(submitData)
     resetError()
     if (submitData.startDate !== '' && moment(submitData.startDate).isValid() && submitData.endDate !== ''
       && moment(submitData.endDate).isValid() && moment(submitData.endDate).diff(moment(submitData.startDate), 'd') > 0
@@ -52,39 +57,33 @@ function Weather() {
     })
   }
 
-  const handler = (points) => {
-    console.log(points)
-  }
-
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit, onError)}>
-        <Box display="flex" flexDirection="column" gap="12px">
-          <Box alignItems="flex-start" display="flex" gap="12px !important" flexDirection="column">
-            <DateRangePicker register={register} getValues={getValues} />
-            <input type="submit" />
-          </Box>
-          <Box>
-            {!error.has && dayOffForecastData.length > 0
+    <form onSubmit={handleSubmit(onSubmit, onError)}>
+      <Box display="flex" flexDirection="column" gap="12px">
+        <Box alignItems="flex-start" display="flex" gap="12px !important" flexDirection="column">
+          <DateRangePicker register={register} getValues={getValues} />
+          <AppMapControl
+            center={fromLonLat([location.longitude, location.latitude])}
+            control={control}
+            watch={watch}
+            handler={handler}
+          />
+          <input type="submit" />
+        </Box>
+        <Box>
+          {!error.has && dayOffForecastData.length > 0
               && (
                 <DayOffForecastData forecastData={dayOffForecastData} />
               )}
-            {/* eslint-disable-next-line no-param-reassign */}
-            {error.has && (
-              <Alert onClose={resetError} severity="error">
-                {`Application Error: ${error.message}`}
-              </Alert>
-            )}
-          </Box>
+          {/* eslint-disable-next-line no-param-reassign */}
+          {error.has && (
+          <Alert onClose={resetError} severity="error">
+            {`Application Error: ${error.message}`}
+          </Alert>
+          )}
         </Box>
-      </form>
-      <AppMap
-        zoom={9}
-        center={fromLonLat([location.longitude, location.latitude])}
-        handler={handler}
-        limit={MAX_MARKERS_QTY}
-      />
-    </>
+      </Box>
+    </form>
   )
 }
 
