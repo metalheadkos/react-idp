@@ -6,6 +6,10 @@ class Helpers {
 
   static isUndefined = (value) => typeof value === 'undefined'
 
+  static isCoordsEmpty = (value) => Array.isArray(value)
+    && (this.isUndefined(value[0]) || Number.isNaN(value[0]))
+    && (this.isUndefined(value[1]) || Number.isNaN(value[1]))
+
   static getDatesFromRange = ({ startDate, endDate }) => {
     const startMoment = moment(startDate)
     // count range length

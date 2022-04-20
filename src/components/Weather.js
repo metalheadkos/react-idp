@@ -11,8 +11,8 @@ import AppMapControl from './AppMapControl'
 
 function Weather() {
   // eslint-disable-next-line no-unused-vars
-  const { register, handleSubmit, getValues, watch, control, setValue } = useForm()
-  // eslint-disable-next-line no-unused-vars
+  const { register, handleSubmit, getValues, control, setValue } = useForm()
+
   const [rangeDates, setRangeDates] = useState({
     startDate: undefined,
     endDate: undefined,
@@ -20,6 +20,7 @@ function Weather() {
 
   const handler = (mPoints) => {
     console.log(mPoints)
+    // setValue('map', [])
   }
 
   const { location } = useGeolocation()
@@ -65,7 +66,6 @@ function Weather() {
           <AppMapControl
             center={fromLonLat([location.longitude, location.latitude])}
             control={control}
-            watch={watch}
             handler={handler}
           />
           <input type="submit" />

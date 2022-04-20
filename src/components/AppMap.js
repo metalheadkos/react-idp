@@ -8,7 +8,7 @@ import TileLayer from './Layers/TileLayer'
 import VectorLayer from './Layers/VectorLayer'
 
 // eslint-disable-next-line no-unused-vars
-export default function AppMap({ zoom, center, handler, limit }) {
+export default function AppMap({ zoom, center, handler, limit, startPoint }) {
   const mapRef = useRef()
   const [map, setMap] = useState(null)
 
@@ -40,7 +40,13 @@ export default function AppMap({ zoom, center, handler, limit }) {
     <div ref={mapRef}>
       <Layers>
         <TileLayer source={new OSM()} map={map} />
-        <VectorLayer source={new Vector()} map={map} handler={handler} limit={limit} />
+        <VectorLayer
+          source={new Vector()}
+          map={map}
+          handler={handler}
+          limit={limit}
+          startPoint={startPoint}
+        />
       </Layers>
     </div>
   )
@@ -49,6 +55,7 @@ export default function AppMap({ zoom, center, handler, limit }) {
 AppMap.propTypes = {
   zoom: PropTypes.number,
   limit: PropTypes.number,
+  startPoint: PropTypes.instanceOf(Array),
   center: PropTypes.instanceOf(Array),
   handler: PropTypes.func,
 }
@@ -56,6 +63,7 @@ AppMap.propTypes = {
 AppMap.defaultProps = {
   zoom: 9,
   limit: 5,
+  startPoint: [NaN, NaN],
   center: [83, 54],
   handler: () => {},
 }

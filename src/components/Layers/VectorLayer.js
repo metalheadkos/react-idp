@@ -6,8 +6,12 @@ import { Feature } from 'ol'
 import { Point } from 'ol/geom'
 import Helpers from '../../services/Helpers'
 
-export default function VectorLayer({ source, map, handler, limit }) {
+export default function VectorLayer({ source, map, handler, limit, startPoint }) {
   const [markers, setMarkers] = useState(undefined)
+  // eslint-disable-next-line no-unused-vars
+  const [selectedCoords, setSelectedCoords] = useState([])
+  // eslint-disable-next-line no-unused-vars
+  const [allCoords, setAllCoords] = useState([])
   useEffect(() => {
     if (!map) return
 
@@ -21,7 +25,6 @@ export default function VectorLayer({ source, map, handler, limit }) {
         }),
       }),
     })
-
     map.addLayer(layer)
     setMarkers(layer)
 
@@ -32,6 +35,15 @@ export default function VectorLayer({ source, map, handler, limit }) {
       }
     }
   }, [map, source])
+
+  useEffect(() => {
+    if (map && Helpers.isDefined(markers) && Helpers.isDefined(startPoint)
+      && !Helpers.isCoordsEmpty(startPoint)
+    ) {
+      const marker = new Feature(new Point(startPoint))
+      markers.getSource().addFeature(marker)
+    }
+  }, [startPoint, markers, map, handler])
 
   useEffect(() => {
     const handleClick = (event) => {
