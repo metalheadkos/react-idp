@@ -11,7 +11,7 @@ import AppMapControl from './AppMapControl'
 
 function Weather() {
   // eslint-disable-next-line no-unused-vars
-  const { register, handleSubmit, getValues, control, setValue } = useForm()
+  const { register, handleSubmit, getValues, control, setValue, formState, getFieldState } = useForm()
 
   const [rangeDates, setRangeDates] = useState({
     startDate: undefined,
@@ -60,14 +60,15 @@ function Weather() {
             center={fromLonLat([location.longitude, location.latitude])}
             control={control}
             setValue={setValue}
+            points={formState.isSubmitted ? rangeDates.points : [[location.longitude, location.latitude]]}
           />
           <input type="submit" />
         </Box>
         <Box>
-          {!error.has && dayOffForecastData.length > 0
-              && (
-                <DayOffForecastData forecastData={dayOffForecastData} />
-              )}
+          {!error.has && dayOffForecastData.length > 0 && formState.isSubmitted
+            && (
+              <DayOffForecastData forecastData={dayOffForecastData} />
+            )}
           {/* eslint-disable-next-line no-param-reassign */}
           {error.has && (
           <Alert onClose={resetError} severity="error">

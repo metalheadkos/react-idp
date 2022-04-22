@@ -5,7 +5,7 @@ import { FetchHttpClient } from '../services/FetchHttpClient'
 import { WeatherDataHandler } from '../services/WeatherDataHandler'
 import Helpers from '../services/Helpers'
 
-export default function useDayOffAndWeatherCombination({ startDate, endDate, points }, location) {
+export default function useDayOffAndWeatherCombination({ startDate, endDate, points = [] }, location) {
   // eslint-disable-next-line no-unused-vars
   const [combinedData, setCombinedData] = useState({})
 
@@ -64,8 +64,6 @@ export default function useDayOffAndWeatherCombination({ startDate, endDate, poi
             })
           }
         }
-
-        console.log(fData)
 
         return fData
       }
