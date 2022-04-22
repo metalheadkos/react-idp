@@ -5,7 +5,6 @@ import Input from './Input'
 
 function DateRangePicker({ register, getValues }) {
   const validate = () => {
-    // eslint-disable-next-line no-unused-vars
     const { startDate, endDate } = getValues()
     return moment(endDate).diff(moment(startDate), 'd') >= 0 || 'Start date should be less than end date'
   }

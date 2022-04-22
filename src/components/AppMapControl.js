@@ -1,12 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
-import { Controller, useWatch } from 'react-hook-form'
+import { useWatch } from 'react-hook-form'
 import AppMap from './AppMap'
 import Helpers from '../services/Helpers'
 
-function AppMapControl({ center, control, handler }) {
-  // eslint-disable-next-line no-unused-vars
-  const [dates, setDates] = useState([])
+function AppMapControl({ center, control, setValue }) {
   const startDate = useWatch({
     control,
     name: 'startDate',
@@ -16,35 +14,28 @@ function AppMapControl({ center, control, handler }) {
     name: 'endDate',
   })
 
-  return (
-    <Controller
-      control={control}
-      name="map"
-      render={() => {
-        if (startDate && endDate) {
-          const datess = Helpers.getDatesFromRange({ startDate, endDate })
-          return (
-            <AppMap
-              center={!Helpers.isCoordsEmpty(center) ? center : undefined}
-              startPoint={!Helpers.isCoordsEmpty(center) ? center : undefined}
-              handler={handler}
-              limit={datess.length}
-            />
-          )
-        }
+  const handler = (mPoints) => {
+    setValue('points', mPoints)
+  }
 
-        return null
-      }}
-    />
+  return (
+    (startDate && endDate) ? (
+      <AppMap
+        center={!Helpers.isCoordsEmpty(center) ? center : undefined}
+        startPoint={!Helpers.isCoordsEmpty(center) ? center : undefined}
+        handler={handler}
+        limit={Helpers.getDatesFromRange({ startDate, endDate }).length}
+      />
+    ) : null
   )
 }
 
 AppMapControl.propTypes = {
   center: PropTypes.instanceOf(Array),
   control: PropTypes.instanceOf(Object),
-  handler: PropTypes.func,
+  setValue: PropTypes.func,
 }
 
-AppMapControl.defaultProps = { center: [83, 54], control: {}, handler: () => {} }
+AppMapControl.defaultProps = { center: [83, 54], control: {}, setValue: () => {} }
 
 export default AppMapControl

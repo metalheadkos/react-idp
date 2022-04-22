@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { View } from 'ol'
 import PropTypes from 'prop-types'
-import Map from 'ol/Map'
+import OLMap from 'ol/Map'
 import { OSM, Vector } from 'ol/source'
 import Layers from './Layers/Layers'
 import TileLayer from './Layers/TileLayer'
@@ -20,7 +20,7 @@ export default function AppMap({ zoom, center, handler, limit, startPoint }) {
       overlays: [],
     }
 
-    const mapObject = new Map(mapOptions)
+    const mapObject = new OLMap(mapOptions)
     mapObject.setTarget(mapRef.current)
     setMap(mapObject)
 

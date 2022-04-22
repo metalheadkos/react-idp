@@ -16,12 +16,8 @@ function Weather() {
   const [rangeDates, setRangeDates] = useState({
     startDate: undefined,
     endDate: undefined,
+    points: [],
   })
-
-  const handler = (mPoints) => {
-    console.log(mPoints)
-    // setValue('map', [])
-  }
 
   const { location } = useGeolocation()
   const dayOffForecastData = useDayOffAndWeatherCombination(rangeDates, location)
@@ -43,10 +39,7 @@ function Weather() {
     if (submitData.startDate !== '' && moment(submitData.startDate).isValid() && submitData.endDate !== ''
       && moment(submitData.endDate).isValid() && moment(submitData.endDate).diff(moment(submitData.startDate), 'd') > 0
     ) {
-      setRangeDates({
-        startDate: submitData.startDate,
-        endDate: submitData.endDate,
-      })
+      setRangeDates(submitData)
     }
   }
 
@@ -66,7 +59,7 @@ function Weather() {
           <AppMapControl
             center={fromLonLat([location.longitude, location.latitude])}
             control={control}
-            handler={handler}
+            setValue={setValue}
           />
           <input type="submit" />
         </Box>
