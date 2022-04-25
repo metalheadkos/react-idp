@@ -28,6 +28,7 @@ function Weather() {
     message: '',
   }
   const [error, setError] = useState(initialErrorState)
+  const [rangeChanged, setRangeChanged] = useState(true)
 
   const resetError = () => {
     setError(initialErrorState)
@@ -35,6 +36,7 @@ function Weather() {
 
   const onSubmit = (submitData) => {
     console.log(submitData)
+    setRangeChanged(false)
     resetError()
     if (submitData.startDate !== '' && moment(submitData.startDate).isValid() && submitData.endDate !== ''
       && moment(submitData.endDate).isValid() && moment(submitData.endDate).diff(moment(submitData.startDate), 'd') > 0
@@ -50,12 +52,14 @@ function Weather() {
       message: submitError.startDate.message,
     })
   }
-
+  const onDateChanged = () => {
+    setRangeChanged(true)
+  }
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
       <Box display="flex" flexDirection="column" gap="12px">
         <Box alignItems="flex-start" display="flex" gap="12px !important" flexDirection="column">
-          <DateRangePicker register={register} getValues={getValues} />
+          <DateRangePicker register={register} getValues={getValues} onDateChanged={onDateChanged} />
           <AppMapControl
             center={fromLonLat([location.longitude, location.latitude])}
             control={control}
@@ -65,7 +69,7 @@ function Weather() {
           <input type="submit" />
         </Box>
         <Box>
-          {!error.has && dayOffForecastData.length > 0 && formState.isSubmitted
+          {!error.has && dayOffForecastData.length > 0 && formState.isSubmitted && !rangeChanged
             && (
               <DayOffForecastData forecastData={dayOffForecastData} />
             )}
