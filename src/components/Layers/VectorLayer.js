@@ -7,7 +7,7 @@ import { Point } from 'ol/geom'
 import { unByKey } from 'ol/Observable'
 import Helpers from '../../services/Helpers'
 
-export default function VectorLayer({ source, map, handler, limit, startPoint }) {
+export default function VectorLayer({ source, map, handler, limit, points }) {
   const [markers, setMarkers] = useState(undefined)
 
   useEffect(() => {
@@ -50,14 +50,15 @@ export default function VectorLayer({ source, map, handler, limit, startPoint })
   }, [handler, limit, map, source])
 
   useEffect(() => {
-    if (map && Helpers.isDefined(markers) && Helpers.isDefined(startPoint)
-      && !Helpers.isCoordsEmpty(startPoint)
-    ) {
-      const marker = new Feature(new Point(startPoint))
-      markers.getSource().addFeature(marker)
+    if (map && Helpers.isDefined(markers) && Helpers.isDefined(points) && points.length > 0) {
+      points.forEach((p) => {
+        const marker = new Feature(new Point(p))
+        markers.getSource().addFeature(marker)
+      })
+
       handler(Helpers.extractCoordinates(markers.getSource().getFeatures()))
     }
-  }, [startPoint, markers, map, handler])
+  }, [points, markers, map, handler])
 
   return null
 }

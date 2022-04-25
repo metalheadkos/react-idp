@@ -91,8 +91,13 @@ export default function useDayOffAndWeatherCombination({ startDate, endDate, poi
         dayOffDataTmp.forEach(({ date, isDayOff }) => {
           // get from general data by date
           const dForecast = dailyForecast.find((dF) => dF.date === date)
+          // preset as undefined
+          let dForecastData
           // get from forecast for point by date
-          const dForecastData = dForecast.forecast.find((fd) => fd.date === date)
+          if (Helpers.isDefined(dForecast)) {
+            dForecastData = dForecast.forecast.find((fd) => fd.date === date)
+          }
+
           finalDayOffForecastData.push({
             date,
             uuid: uuidv4(),

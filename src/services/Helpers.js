@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { transform } from 'ol/proj'
+import { fromLonLat, transform } from 'ol/proj'
 
 class Helpers {
   static isDefined = (value) => typeof value !== 'undefined'
@@ -40,6 +40,17 @@ class Helpers {
     features.forEach((f) => coordinates.push(transform(f.getGeometry().getCoordinates(), 'EPSG:3857', 'EPSG:4326')))
 
     return coordinates
+  }
+
+  static convertCoordinates = (coordinates) => {
+    const converted = []
+    if (Array.isArray(coordinates)) {
+      coordinates.forEach((c) => {
+        converted.push(fromLonLat(c))
+      })
+    }
+
+    return converted
   }
 }
 

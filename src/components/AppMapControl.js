@@ -23,7 +23,7 @@ function AppMapControl({ center, control, setValue, points }) {
     (startDate && endDate) ? (
       <AppMap
         center={!Helpers.isCoordsEmpty(center) ? center : undefined}
-        startPoint={!Helpers.isCoordsEmpty(center) ? center : undefined}
+        points={points}
         handler={handler}
         limit={Helpers.getDatesFromRange({ startDate, endDate }).length}
       />

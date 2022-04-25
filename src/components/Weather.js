@@ -8,6 +8,7 @@ import DateRangePicker from './DateRangePicker'
 import DayOffForecastData from './DayOffForecastData'
 import useDayOffAndWeatherCombination from '../hooks/useDayOffAndWeatherCombination'
 import AppMapControl from './AppMapControl'
+import Helpers from '../services/Helpers'
 
 function Weather() {
   // eslint-disable-next-line no-unused-vars
@@ -54,6 +55,13 @@ function Weather() {
   }
   const onDateChanged = () => {
     setRangeChanged(true)
+    setRangeDates((prevState) => {
+      let points = []
+      if (!Helpers.isCoordsEmpty([location.longitude, location.latitude])) {
+        points = [prevState.points[0]]
+      }
+      return { ...prevState, points }
+    })
   }
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
@@ -64,15 +72,16 @@ function Weather() {
             center={fromLonLat([location.longitude, location.latitude])}
             control={control}
             setValue={setValue}
-            points={formState.isSubmitted ? rangeDates.points : [[location.longitude, location.latitude]]}
+            points={formState.isSubmitted ? Helpers.convertCoordinates(rangeDates.points)
+              : Helpers.convertCoordinates([[location.longitude, location.latitude]])}
           />
           <input type="submit" />
         </Box>
         <Box>
-          {!error.has && dayOffForecastData.length > 0 && formState.isSubmitted && !rangeChanged
-            && (
+          {!error.has && dayOffForecastData.length > 0 && formState.isSubmitted && !formState.isSubmitting
+            && !rangeChanged && (
               <DayOffForecastData forecastData={dayOffForecastData} />
-            )}
+          )}
           {/* eslint-disable-next-line no-param-reassign */}
           {error.has && (
           <Alert onClose={resetError} severity="error">
