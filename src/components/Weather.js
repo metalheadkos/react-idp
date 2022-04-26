@@ -9,10 +9,14 @@ import DayOffForecastData from './DayOffForecastData'
 import useDayOffAndWeatherCombination from '../hooks/useDayOffAndWeatherCombination'
 import AppMapControl from './AppMapControl'
 import Helpers from '../services/Helpers'
+import { useFormStore } from '../store/store'
 
 function Weather() {
   // eslint-disable-next-line no-unused-vars
   const { register, handleSubmit, getValues, control, setValue, formState, getFieldState } = useForm()
+
+  // eslint-disable-next-line no-unused-vars
+  const formStore = useFormStore()
 
   const [rangeDates, setRangeDates] = useState({
     startDate: undefined,
@@ -84,9 +88,9 @@ function Weather() {
           )}
           {/* eslint-disable-next-line no-param-reassign */}
           {error.has && (
-          <Alert onClose={resetError} severity="error">
-            {`Application Error: ${error.message}`}
-          </Alert>
+            <Alert onClose={resetError} severity="error">
+              {`Application Error: ${error.message}`}
+            </Alert>
           )}
         </Box>
       </Box>
