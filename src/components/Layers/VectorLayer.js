@@ -6,9 +6,15 @@ import { Feature } from 'ol'
 import { Point } from 'ol/geom'
 import { unByKey } from 'ol/Observable'
 import Helpers from '../../services/Helpers'
+import { useDataStore, useFormStore } from '../../store/store'
 
 export default function VectorLayer({ source, map, handler, limit, points }) {
   const [markers, setMarkers] = useState(undefined)
+
+  // eslint-disable-next-line no-unused-vars
+  const formStore = useFormStore()
+  // eslint-disable-next-line no-unused-vars
+  const dataStore = useDataStore()
 
   useEffect(() => {
     if (!map) return

@@ -27,19 +27,5 @@ export const useStore = () => {
   return store
 }
 
-export const useFormStore = () => {
-  const store = useContext(StoreContext)
-  if (!store) {
-    throw new Error('useStore must be used within a StoreProvider.')
-  }
-  return store.formStore
-}
-
-export const useDataStore = () => {
-  const store = useContext(StoreContext)
-
-  if (!store) {
-    throw new Error('useStore must be used within a StoreProvider.')
-  }
-  return store.dataStore
-}
+export const useFormStore = () => useStore().formStore
+export const useDataStore = () => useStore().dataStore
